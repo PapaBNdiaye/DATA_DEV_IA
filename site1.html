@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outil de Migration Access vers Power BI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .progress-bar {
+            height: 6px;
+            transition: width 0.3s ease;
+        }
+        .step {
+            display: none;
+        }
+        .step.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        .checklist-item.completed {
+            color: #10B981;
+        }
+        .checklist-item.completed .fa-check {
+            display: inline-block;
+        }
+        .checklist-item .fa-check {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <!-- Header -->
+        <header class="mb-8 text-center">
+            <div class="flex justify-center items-center mb-4">
+                <i class="fas fa-database text-blue-500 text-4xl mr-3"></i>
+                <i class="fas fa-arrow-right text-gray-400 text-2xl mx-2"></i>
+                <i class="fas fa-chart-line text-yellow-500 text-4xl ml-3"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Outil de Migration Access vers Power BI</h1>
+            <p class="text-gray-600">Guide complet pour convertir votre application Access en solution Power BI moderne</p>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="mb-8 bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between mb-2">
+                <span class="text-sm font-medium text-gray-700">Progression</span>
+                <span id="progress-percentage" class="text-sm font-medium text-blue-600">0%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div id="progress-bar" class="progress-bar bg-blue-600 rounded-full" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <!-- Steps Navigation -->
+            <div class="flex border-b">
+                <button class="step-nav flex-1 py-4 px-6 text-center font-medium border-b-2 border-transparent hover:bg-gray-50 transition" data-step="1">
+                    <span class="step-number bg-gray-200 text-gray-700 rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">1</span>
+                    Évaluation
+                </button>
+                <button class="step-nav flex-1 py-4 px-6 text-center font-medium border-b-2 border-transparent hover:bg-gray-50 transition" data-step="2">
+                    <span class="step-number bg-gray-200 text-gray-700 rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">2</span>
+                    Préparation
+                </button>
+                <button class="step-nav flex-1 py-4 px-6 text-center font-medium border-b-2 border-transparent hover:bg-gray-50 transition" data-step="3">
+                    <span class="step-number bg-gray-200 text-gray-700 rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">3</span>
+                    Migration
+                </button>
+                <button class="step-nav flex-1 py-4 px-6 text-center font-medium border-b-2 border-transparent hover:bg-gray-50 transition" data-step="4">
+                    <span class="step-number bg-gray-200 text-gray-700 rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">4</span>
+                    Optimisation
+                </button>
+                <button class="step-nav flex-1 py-4 px-6 text-center font-medium border-b-2 border-transparent hover:bg-gray-50 transition" data-step="5">
+                    <span class="step-number bg-gray-200 text-gray-700 rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">5</span>
+                    Finalisation
+                </button>
+            </div>
+
+            <!-- Steps Content -->
+            <div class="p-6">
+                <!-- Step 1: Evaluation -->
+                <div class="step active" id="step-1">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Évaluation de votre application Access</h2>
+                    <p class="text-gray-600 mb-6">Commencez par évaluer votre application Access actuelle pour déterminer les éléments à migrer vers Power BI.</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-blue-800 mb-3"><i class="fas fa-database mr-2"></i>Inventaire des données</h3>
+                            <div class="space-y-3">
+                                <div class="checklist-item">
+                                    <input type="checkbox" id="tables" class="mr-2">
+                                    <label for="tables">Liste des tables principales</label>
+                                </div>
+                                <div class="checklist-item">
+                                    <input type="checkbox" id="queries" class="mr-2">
+                                    <label for="queries">Requêtes SQL importantes</label>
+                                </div>
+                                <div class="checklist-item">
+                                    <input type="checkbox" id="relations" class="mr-2">
+                                    <label for="relations">Relations entre les tables</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-purple-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-purple-800 mb-3"><i class="fas fa-window-maximize mr-2"></i>Interface utilisateur</h3>
+                            <div class="space-y-3">
+                                <div class="checklist-item">
+                                    <input type="checkbox" id="forms" class="mr-2">
+                                    <label for="forms">Formulaires principaux</label>
+                                </div>
+                                <div class="checklist-item">
+                                    <input type="checkbox" id="reports" class="mr-2">
+                                    <label for="reports">Rapports Access</label>
+                                </div>
+                                <div class="checklist-item">
+                                    <input type="checkbox" id="macros" class="mr-2">
+                                    <label for="macros">Macros et VBA</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="access-version" class="block text-sm font-medium text-gray-700 mb-1">Version d'Access utilisée</label>
+                        <select id="access-version" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Sélectionnez une version</option>
+                            <option value="2019">Access 2019</option>
+                            <option value="2016">Access 2016</option>
+                            <option value="2013">Access 2013</option>
+                            <option value="2010">Access 2010</option>
+                            <option value="2007">Access 2007</option>
+                            <option value="2003">Access 2003 ou antérieur</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="db-size" class="block text-sm font-medium text-gray-700 mb-1">Taille de la base de données</label>
+                        <input type="range" id="db-size" min="1" max="100" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>Petite (<1MB)</span>
+                            <span>Moyenne (1-50MB)</span>
+                            <span>Grande (>50MB)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-8">
+                        <button class="px-4 py-2 text-gray-600 rounded-md hover:bg-gray-100 disabled:opacity-50" disabled>
+                            <i class="fas fa-arrow-left mr-2"></i>Précédent
+                        </button>
+                        <button class="next-step px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition" data-next="2">
+                            Suivant <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Preparation -->
+                <div class="step" id="step-2">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Préparation à la migration</h2>
+                    <p class="text-gray-600 mb-6">Préparez votre environnement et vos données pour une migration réussie vers Power BI.</p>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-circle text-yellow-500 text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-700">
+                                    <strong>Important :</strong> Sauvegardez votre base de données Access avant de commencer la migration.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                            <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
+                                <i class="fas fa-server text-green-600 mr-2"></i>Options de stockage des données
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="flex items-start">
+                                    <input id="sql-server" name="storage" type="radio" class="h-4 w-4 text-blue-600 focus:ring-blue-500 mt-1">
+                                    <label for="sql-server" class="ml-2 block text-sm text-gray-700">
+                                        <span class="font-medium">SQL Server</span> (recommandé pour les bases importantes)
+                                        <span class="block text-xs text-gray-500">Meilleures performances et sécurité</span>
+                                    </label>
+                                </div>
+                                <div class="flex items-start">
+                                    <input id="sharepoint" name="storage" type="radio" class="h-4 w-4 text-blue-600 focus:ring-blue-500 mt-1">
+                                    <label for="sharepoint" class="ml-2 block text-sm text-gray-700">
+                                        <span class="font-medium">SharePoint Lists</span>
+                                        <span class="block text-xs text-gray-500">Pour les petites bases avec collaboration</span>
+                                    </label>
+                                </div>
+                                <div class="flex items-start">
+                                    <input id="direct" name="storage" type="radio" class="h-4 w-4 text-blue-600 focus:ring-blue-500 mt-1">
+                                    <label for="direct" class="ml-2 block text-sm text-gray-700">
+                                        <span class="font-medium">Lien direct vers fichier Access</span>
+                                        <span class="block text-xs text-gray-500">Solution temporaire (non recommandé)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                            <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
+                                <i class="fas fa-tools text-blue-600 mr-2"></i>Outils nécessaires
+                            </h3>
+                            <ul class="space-y-2 text-sm text-gray-700">
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                    Power BI Desktop (gratuit)
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                    SQL Server Management Studio (optionnel)
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                    Microsoft Access (pour exporter)
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                    Compte Power BI Pro ou Premium
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="font-medium text-gray-800 mb-2">Méthode de migration recommandée</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <ol class="list-decimal pl-5 space-y-2 text-sm text-gray-700">
+                                <li>Exporter les tables Access vers SQL Server (ou autre destination)</li>
+                                <li>Créer un modèle de données dans Power BI Desktop</li>
+                                <li>Définir les relations entre les tables</li>
+                                <li>Recréer les calculs et mesures nécessaires</li>
+                                <li>Concevoir des rapports et tableaux de bord</li>
+                                <li>Publier sur le service Power BI</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-8">
+                        <button class="prev-step px-4 py-2 text-gray-600 rounded-md hover:bg-gray-100" data-prev="1">
+                            <i class="fas fa-arrow-left mr-2"></i>Précédent
+                        </button>
+                        <button class="next-step px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition" data-next="3">
+                            Suivant <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Migration -->
+                <div class="step" id="step-3">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Migration des données et logique</h2>
+                    <p class="text-gray-600 mb-6">Migrez vos données et la logique métier d'Access vers Power BI.</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                            <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
+                                <i class="fas fa-database text-blue-600 mr-2"></i>Migration des données
+                            </h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-700 mb-1">1. Exporter depuis Access</h4>
+                                    <div class="bg-gray-50 p-3 rounded text-xs font-mono mb-2">
+                                        Fichier > Exporter > SQL Server
+                                    </div>
+                                    <p class="text-xs text-gray-500">Ou utiliser l'Assistant Migration SQL Server</p>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-700 mb-1">2. Importer dans Power BI</h4>
+                                    <div class="flex space-x-2">
+                                        <button class="px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded hover:bg-blue-200">
+                                            Obtenir des données
+                                        </button>
+                                        <button class="px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded hover:bg-blue-200">
+                                            SQL Server
+                                        </button>
+                                        <button class="px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded hover:bg-blue-200">
+                                            Autres bases
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                            <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
+                                <i class="fas fa-code text-purple-600 mr-2"></i>Migration de la logique
+                            </h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-700">Requêtes SQL → DAX/Power Query</h4>
+                                    <div class="flex items-center mt-1">
+                                        <span class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded mr-2">Access</span>
+                                        <i class="fas fa-arrow-right text-gray-400 mx-1"></i>
+                                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">Power BI</span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-700">Exemple de conversion</h4>
+                                    <div class="bg-gray-800 text-green-400 p-2 rounded text-xs font-mono overflow-x-auto">
+                                        <span class="text-gray-400">-- Access SQL:</span><br>
+                                        SELECT Year([Date]) AS Year, SUM([Sales]) AS TotalSales<br>
+                                        FROM Sales<br>
+                                        GROUP BY Year([Date]);<br><br>
+                                        
+                                        <span class="text-gray-400">// Power BI DAX:</span><br>
+                                        TotalSales = SUM(Sales[Sales])<br>
+                                        SalesByYear = <br>
+                                        &nbsp;&nbsp;SUMMARIZE(Sales, Sales[Year], "Total Sales", [TotalSales])
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="font-medium text-gray-800 mb-2">Migration des rapports</h3>
+                        <div class="bg-white border border-gray-200 rounded-lg p-4">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 mt-1">
+                                    <i class="fas fa-info-circle text-blue-500"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-gray-700">
+                                        Les rapports Access ne peuvent pas être migrés directement. Vous devrez recréer les visualisations dans Power BI en utilisant:
+                                    </p>
+                                    <ul class="list-disc pl-5 mt-2 text-sm text-gray-600">
+                                        <li>Graphiques et tableaux Power BI</li>
+                                        <li>Tableaux croisés dynamiques</li>
+                                        <li>Cartes et indicateurs KPI</li>
+                                        <li>Mises en page personnalisées</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-8">
+                        <button class="prev-step px-4 py-2 text-gray-600 rounded-md hover:bg-gray-100" data-prev="2">
+                            <i class="fas fa-arrow-left mr-2"></i>Précédent
+                        </button>
+                        <button class="next-step px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition" data-next="4">
+                            Suivant <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Optimization -->
+                <div class="step" id="step-4">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Optimisation et bonnes pratiques</h2>
+                    <p class="text-gray-600 mb-6">Améliorez les performances et l'expérience utilisateur de votre nouveau rapport Power BI.</p>
+                    
+                    <div class="grid md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                            <div class="flex items-center mb-2">
+                                <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                    <i class="fas fa-bolt text-blue-600"></i>
+                                </div>
+                                <h3 class="font-medium text-gray-800">Performances</h3>
+                            </div>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 text-xs mt-1 mr-2"></i>
+                                    Utiliser le mode Import au lieu de DirectQuery si possible
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 text-xs mt-1 mr-2"></i>
+                                    Limiter les colonnes importées
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 text-xs mt-1 mr-2"></i>
+                                    Appliquer des filtres en amont
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                            <div class="flex items-center mb-2">
+                                <div class="bg-purple-100 p-2 rounded-full mr-3">
+                                    <i class="fas fa-eye text-purple-600"></i>
+                                </div>
+                                <h3 class="font-medium text-gray-800">UX/UI</h3>
+                            </div>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 text-xs mt-1 mr-2"></i>
+                                    Créer une navigation intuitive
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 text-xs mt-1 mr-2"></i>
+                                    Utiliser des thèmes cohérents
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 text-xs mt-1 mr-2"></i>
+                                    Ajouter des tooltips et aide contextuelle
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                            <div class="flex items-center mb-2">
+                                <div class="bg-green-100 p-2 rounded-full mr-3">
+                                    <i class="fas fa-shield-alt text-green-600"></i>
+                                </div>
+                                <h3 class="font-medium text-gray-800">Sécurité</h3>
+                            </div>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 text-xs mt-1 mr-2"></i>
+                                    Configurer le RLS (Row Level Security)
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 text-xs mt-1 mr-2"></i>
+                                    Gérer les accès via groupes
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 text-xs mt-1 mr-2"></i>
+                                    Sensibiliser aux bonnes pratiques
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="font-medium text-gray-800 mb-2">Fonctionnalités Power BI à exploiter</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div class="bg-blue-50 p-3 rounded text-center">
+                                <i class="fas fa-sliders-h text-blue-600 text-xl mb-1"></i>
+                                <p class="text-xs font-medium">Filtres visuels</p>
+                            </div>
+                            <div class="bg-purple-50 p-3 rounded text-center">
+                                <i class="fas fa-crosshairs text-purple-600 text-xl mb-1"></i>
+                                <p class="text-xs font-medium">Drill-through</p>
+                            </div>
+                            <div class="bg-green-50 p-3 rounded text-center">
+                                <i class="fas fa-comment-alt text-green-600 text-xl mb-1"></i>
+                                <p class="text-xs font-medium">Annotations</p>
+                            </div>
+                            <div class="bg-yellow-50 p-3 rounded text-center">
+                                <i class="fas fa-robot text-yellow-600 text-xl mb-1"></i>
+                                <p class="text-xs font-medium">Q&A naturel</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+                        <h3 class="font-medium text-gray-800 mb-2">Plan de test</h3>
+                        <div class="space-y-3">
+                            <div class="checklist-item">
+                                <input type="checkbox" id="test-data" class="mr-2">
+                                <label for="test-data">Vérifier l'exactitude des données</label>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" id="test-perf" class="mr-2">
+                                <label for="test-perf">Tester les performances</label>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" id="test-ux" class="mr-2">
+                                <label for="test-ux">Valider l'expérience utilisateur</label>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" id="test-sec" class="mr-2">
+                                <label for="test-sec">Tester la sécurité</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-8">
+                        <button class="prev-step px-4 py-2 text-gray-600 rounded-md hover:bg-gray-100" data-prev="3">
+                            <i class="fas fa-arrow-left mr-2"></i>Précédent
+                        </button>
+                        <button class="next-step px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition" data-next="5">
+                            Suivant <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 5: Finalization -->
+                <div class="step" id="step-5">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Finalisation et déploiement</h2>
+                    <p class="text-gray-600 mb-6">Déployez votre solution Power BI et formez les utilisateurs.</p>
+                    
+                    <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-check-circle text-green-500 text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-green-700">
+                                    <strong>Félicitations !</strong> Vous avez presque terminé votre migration vers Power BI.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                            <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
+                                <i class="fas fa-cloud-upload-alt text-blue-600 mr-2"></i>Publication
+                            </h3>
+                            <ol class="list-decimal pl-5 space-y-2 text-sm text-gray-700">
+                                <li>Publier sur le service Power BI</li>
+                                <li>Configurer les planifications d'actualisation</li>
+                                <li>Définir les paramètres de partage</li>
+                                <li>Configurer les alertes si nécessaire</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                            <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
+                                <i class="fas fa-chalkboard-teacher text-purple-600 mr-2"></i>Formation
+                            </h3>
+                            <div class="space-y-2 text-sm text-gray-700">
+                                <div class="flex items-center">
+                                    <i class="fas fa-video text-red-500 mr-2"></i>
+                                    <span>Créer des tutoriels vidéo</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-file-pdf text-blue-500 mr-2"></i>
+                                    <span>Documentation utilisateur</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-users text-green-500 mr-2"></i>
+                                    <span>Sessions de formation en groupe</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="font-medium text-gray-800 mb-2">Ressources supplémentaires</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <a href="#" class="bg-gray-100 hover:bg-gray-200 p-3 rounded flex items-center transition">
+                                <i class="fas fa-book text-blue-600 mr-2"></i>
+                                <span class="text-sm">Documentation Power BI</span>
+                            </a>
+                            <a href="#" class="bg-gray-100 hover:bg-gray-200 p-3 rounded flex items-center transition">
+                                <i class="fas fa-graduation-cap text-purple-600 mr-2"></i>
+                                <span class="text-sm">Formations en ligne</span>
+                            </a>
+                            <a href="#" class="bg-gray-100 hover:bg-gray-200 p-3 rounded flex items-center transition">
+                                <i class="fas fa-comments text-green-600 mr-2"></i>
+                                <span class="text-sm">Communauté Power BI</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white border border-blue-200 rounded-lg p-4 mb-6">
+                        <h3 class="font-medium text-gray-800 mb-2">Télécharger le rapport de migration</h3>
+                        <p class="text-sm text-gray-600 mb-3">Générez un rapport détaillé de votre migration pour documentation.</p>
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition flex items-center">
+                            <i class="fas fa-file-pdf mr-2"></i> Générer le PDF
+                        </button>
+                    </div>
+                    
+                    <div class="flex justify-between mt-8">
+                        <button class="prev-step px-4 py-2 text-gray-600 rounded-md hover:bg-gray-100" data-prev="4">
+                            <i class="fas fa-arrow-left mr-2"></i>Précédent
+                        </button>
+                        <button class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition flex items-center">
+                            <i class="fas fa-check-circle mr-2"></i> Terminer la migration
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-sm text-gray-500">
+            <p>Outil de migration Access vers Power BI - © 2023</p>
+            <p class="mt-1">Cet outil est fourni à titre informatif et ne remplace pas une expertise professionnelle.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Step navigation
+            const steps = document.querySelectorAll('.step');
+            const stepNavs = document.querySelectorAll('.step-nav');
+            const progressBar = document.getElementById('progress-bar');
+            const progressPercentage = document.getElementById('progress-percentage');
+            let currentStep = 1;
+            const totalSteps = steps.length;
+            
+            // Initialize first step
+            updateStepNavigation();
+            
+            // Step navigation click
+            stepNavs.forEach(nav => {
+                nav.addEventListener('click', function() {
+                    const stepNumber = parseInt(this.getAttribute('data-step'));
+                    if (stepNumber <= currentStep) {
+                        showStep(stepNumber);
+                    }
+                });
+            });
+            
+            // Next step buttons
+            document.querySelectorAll('.next-step').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const nextStep = parseInt(this.getAttribute('data-next'));
+                    showStep(nextStep);
+                });
+            });
+            
+            // Previous step buttons
+            document.querySelectorAll('.prev-step').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const prevStep = parseInt(this.getAttribute('data-prev'));
+                    showStep(prevStep);
+                });
+            });
+            
+            // Checklist items
+            document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const item = this.closest('.checklist-item');
+                    if (this.checked) {
+                        item.classList.add('completed');
+                    } else {
+                        item.classList.remove('completed');
+                    }
+                });
+            });
+            
+            function showStep(stepNumber) {
+                // Hide all steps
+                steps.forEach(step => {
+                    step.classList.remove('active');
+                });
+                
+                // Show selected step
+                document.getElementById(`step-${stepNumber}`).classList.add('active');
+                
+                // Update current step
+                currentStep = stepNumber;
+                
+                // Update navigation
+                updateStepNavigation();
+                
+                // Update progress bar
+                updateProgress();
+            }
+            
+            function updateStepNavigation() {
+                stepNavs.forEach(nav => {
+                    const stepNumber = parseInt(nav.getAttribute('data-step'));
+                    const stepNumberElement = nav.querySelector('.step-number');
+                    
+                    if (stepNumber < currentStep) {
+                        nav.classList.remove('border-transparent');
+                        nav.classList.add('border-blue-500', 'text-blue-600');
+                        stepNumberElement.classList.remove('bg-gray-200', 'text-gray-700');
+                        stepNumberElement.classList.add('bg-blue-100', 'text-blue-800');
+                    } else if (stepNumber === currentStep) {
+                        nav.classList.remove('border-transparent');
+                        nav.classList.add('border-blue-500', 'text-blue-600');
+                        stepNumberElement.classList.remove('bg-gray-200', 'text-gray-700');
+                        stepNumberElement.classList.add('bg-blue-600', 'text-white');
+                    } else {
+                        nav.classList.remove('border-blue-500', 'text-blue-600');
+                        nav.classList.add('border-transparent');
+                        stepNumberElement.classList.remove('bg-blue-100', 'text-blue-800', 'bg-blue-600', 'text-white');
+                        stepNumberElement.classList.add('bg-gray-200', 'text-gray-700');
+                    }
+                });
+            }
+            
+            function updateProgress() {
+                const progress = (currentStep / totalSteps) * 100;
+                progressBar.style.width = `${progress}%`;
+                progressPercentage.textContent = `${Math.round(progress)}%`;
+            }
+        });
+    </script>
+</body>
+</html>
