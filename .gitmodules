@@ -1,0 +1,3 @@
+[submodule "Scraping"]
+	path = Scraping
+	url = https://github.com/Thomas-Berton/deepseek-ai-web-crawler
